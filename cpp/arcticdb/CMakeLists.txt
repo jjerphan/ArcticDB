@@ -49,9 +49,11 @@ if (ARCTICDB_USING_VCPKG AND NOT ${ARCTICDB_USING_CONDA})
     set(Zstd_LIBRARY $<IF:$<TARGET_EXISTS:zstd::libzstd_shared>,zstd::libzstd_shared,zstd::libzstd_static>)
 elseif(${ARCTICDB_USING_CONDA})
 
+    # ARCTICDB_USE_CONDA is used to resolve include paths.
+    add_compile_definitions(ARCTICDB_USE_CONDA=1)
     find_package(pybind11 REQUIRED)
     find_package(xxHash REQUIRED)
-
+    find_package(semimap REQUIRED)
     find_package(double-conversion REQUIRED)
     find_package(Libevent  REQUIRED)
 
@@ -572,11 +574,6 @@ pybind11_add_module(arcticdb_ext MODULE
 set (additional_link_flags "")
 if (HIDE_LINKED_SYMBOLS AND (NOT WIN32))
 
-    if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        list(APPEND additional_link_flags
-                "--exclude-libs,--gc-sections,ALL"
-                )
-    endif()
 endif()
 
 target_link_libraries(arcticdb_ext
